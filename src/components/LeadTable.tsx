@@ -3,6 +3,8 @@ import React from 'react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Lead } from '@/types/lead';
 import { getDaysSinceLastEdit } from '@/services/leadService';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Checkbox } from '@/components/ui/checkbox';
 
 interface LeadTableProps {
   leads: Lead[];
@@ -11,47 +13,42 @@ interface LeadTableProps {
 const LeadTable: React.FC<LeadTableProps> = ({ leads }) => {
   return (
     <div className="overflow-x-auto">
-      <div className="min-w-full">
-        {/* Table Header */}
-        <div className="bg-crm-header text-white py-3 px-2">
-          <div className="flex items-center">
-            <div className="w-10">
-              <input type="checkbox" className="rounded text-blue-500" />
-            </div>
-            <div className="w-1/8 font-semibold">SKU</div>
-            <div className="w-1/8 font-semibold">Car warehouse link</div>
-            <div className="w-1/8 font-semibold">Source</div>
-            <div className="w-1/5 font-semibold">Intention</div>
-            <div className="w-1/8 font-semibold">Customer name</div>
-            <div className="w-1/8 font-semibold">Phone number</div>
-            <div className="w-1/8 font-semibold">Tags</div>
-            <div className="w-1/8 font-semibold">Vehicle description</div>
-            <div className="w-1/8 font-semibold">Last Update</div>
-          </div>
-        </div>
-
-        {/* Table Body */}
-        <div>
+      <Table>
+        <TableHeader className="bg-crm-header">
+          <TableRow className="border-none">
+            <TableHead className="w-10 text-white">
+              <Checkbox className="rounded text-blue-500" />
+            </TableHead>
+            <TableHead className="text-white font-semibold">SKU</TableHead>
+            <TableHead className="text-white font-semibold">Car warehouse link</TableHead>
+            <TableHead className="text-white font-semibold">Source</TableHead>
+            <TableHead className="text-white font-semibold">Intention</TableHead>
+            <TableHead className="text-white font-semibold">Customer name</TableHead>
+            <TableHead className="text-white font-semibold">Phone number</TableHead>
+            <TableHead className="text-white font-semibold">Tags</TableHead>
+            <TableHead className="text-white font-semibold">Vehicle description</TableHead>
+            <TableHead className="text-white font-semibold">Last Update</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
           {leads.map((lead) => (
             <TooltipProvider key={lead.id}>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <div 
-                    className={`border-b border-gray-200 hover:bg-gray-50 ${
-                      lead.isStale ? 'bg-crm-stale' : ''
-                    }`}
+                  <TableRow 
+                    className={lead.isStale ? 'bg-crm-stale hover:bg-crm-stale/80' : 'hover:bg-gray-50'}
                   >
-                    <div className="flex items-center py-3 px-2">
-                      <div className="w-10">
-                        <input type="checkbox" className="rounded text-blue-500" />
-                      </div>
-                      <div className="w-1/8">{lead.sku}</div>
-                      <div className="w-1/8 text-crm-blue">{lead.warehouseLink}</div>
-                      <div className="w-1/8">{lead.source}</div>
-                      <div className="w-1/5 truncate">{lead.intention}</div>
-                      <div className="w-1/8">{lead.customerName}</div>
-                      <div className="w-1/8">{lead.phoneNumber}</div>
-                      <div className="w-1/8">
+                    <TableCell className="w-10">
+                      <Checkbox className="rounded text-blue-500" />
+                    </TableCell>
+                    <TableCell className="font-medium">{lead.sku}</TableCell>
+                    <TableCell className="text-crm-blue">{lead.warehouseLink}</TableCell>
+                    <TableCell>{lead.source}</TableCell>
+                    <TableCell className="max-w-xs truncate">{lead.intention}</TableCell>
+                    <TableCell>{lead.customerName}</TableCell>
+                    <TableCell>{lead.phoneNumber}</TableCell>
+                    <TableCell>
+                      <div className="flex flex-wrap gap-1">
                         {lead.tags.map((tag, index) => (
                           <span 
                             key={index} 
@@ -61,12 +58,12 @@ const LeadTable: React.FC<LeadTableProps> = ({ leads }) => {
                           </span>
                         ))}
                       </div>
-                      <div className="w-1/8 truncate">{lead.vehicleDescription}</div>
-                      <div className="w-1/8 text-sm">
-                        {getDaysSinceLastEdit(lead.lastEditTime)} days ago
-                      </div>
-                    </div>
-                  </div>
+                    </TableCell>
+                    <TableCell className="max-w-xs truncate">{lead.vehicleDescription}</TableCell>
+                    <TableCell className="text-sm">
+                      {getDaysSinceLastEdit(lead.lastEditTime)} days ago
+                    </TableCell>
+                  </TableRow>
                 </TooltipTrigger>
                 {lead.isStale && (
                   <TooltipContent>
@@ -76,8 +73,8 @@ const LeadTable: React.FC<LeadTableProps> = ({ leads }) => {
               </Tooltip>
             </TooltipProvider>
           ))}
-        </div>
-      </div>
+        </TableBody>
+      </Table>
     </div>
   );
 };

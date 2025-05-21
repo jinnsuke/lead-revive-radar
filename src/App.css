@@ -9,3 +9,16 @@
 .stale-row {
   background-color: #FFF5F5;
 }
+
+/* Add styles for better table alignment */
+.table-container {
+  width: 100%;
+  overflow-x: auto;
+}
+
+/* Add styles for the header to stand out */
+.table-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
