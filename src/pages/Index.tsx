@@ -9,12 +9,18 @@ import { useToast } from "@/components/ui/use-toast";
 import { Lead } from '@/types/lead';
 import { Event } from '@/types/event';
 
-const Index: React.FC = () => {
+interface IndexProps {
+  events: Event[];
+  onAddEvent: (event: Omit<Event, 'id'>) => void;
+  onUpdateEvent: (eventId: string, updates: Partial<Event>) => void;
+  onDeleteEvent: (eventId: string) => void;
+}
+
+const Index: React.FC<IndexProps> = ({ events, onAddEvent, onUpdateEvent, onDeleteEvent }) => {
   const { toast } = useToast();
   const [leads, setLeads] = useState<Lead[]>(getLeads());
   const [filteredLeads, setFilteredLeads] = useState<Lead[]>(getLeads());
   const [daysFilter, setDaysFilter] = useState<number | null>(null);
-  const [events, setEvents] = useState<Event[]>([]);
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [isPanelOpen, setIsPanelOpen] = useState(false);
 
@@ -43,23 +49,17 @@ const Index: React.FC = () => {
     setIsPanelOpen(true);
   };
 
-  const handleAddEvent = (eventData: Omit<Event, 'id'>) => {
-    const newEvent: Event = {
-      ...eventData,
-      id: Date.now().toString()
-    };
-    setEvents([...events, newEvent]);
+  const handleAddEventWithToast = (eventData: Omit<Event, 'id'>) => {
+    onAddEvent(eventData);
     
     toast({
       title: "Event created",
-      description: `${newEvent.title} has been scheduled`,
+      description: `${eventData.title} has been scheduled`,
     });
   };
 
-  const handleUpdateEvent = (eventId: string, updates: Partial<Event>) => {
-    setEvents(events.map(event => 
-      event.id === eventId ? { ...event, ...updates } : event
-    ));
+  const handleUpdateEventWithToast = (eventId: string, updates: Partial<Event>) => {
+    onUpdateEvent(eventId, updates);
     
     toast({
       title: "Event updated",
@@ -67,8 +67,8 @@ const Index: React.FC = () => {
     });
   };
 
-  const handleDeleteEvent = (eventId: string) => {
-    setEvents(events.filter(event => event.id !== eventId));
+  const handleDeleteEventWithToast = (eventId: string) => {
+    onDeleteEvent(eventId);
     
     toast({
       title: "Event deleted",
@@ -108,9 +108,9 @@ const Index: React.FC = () => {
         isOpen={isPanelOpen}
         onClose={() => setIsPanelOpen(false)}
         events={events}
-        onAddEvent={handleAddEvent}
-        onUpdateEvent={handleUpdateEvent}
-        onDeleteEvent={handleDeleteEvent}
+        onAddEvent={handleAddEventWithToast}
+        onUpdateEvent={handleUpdateEventWithToast}
+        onDeleteEvent={handleDeleteEventWithToast}
       />
     </div>
   );

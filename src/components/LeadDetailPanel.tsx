@@ -35,6 +35,10 @@ const LeadDetailPanel: React.FC<LeadDetailPanelProps> = ({
   if (!lead) return null;
 
   const leadEvents = events.filter(event => event.leadId === lead.id);
+  // Filter out the event being edited from the displayed list
+  const displayedEvents = editingEvent 
+    ? leadEvents.filter(event => event.id !== editingEvent.id)
+    : leadEvents;
 
   const handleAddEvent = (eventData: Omit<Event, 'id'>) => {
     onAddEvent(eventData);
@@ -113,7 +117,7 @@ const LeadDetailPanel: React.FC<LeadDetailPanelProps> = ({
                 )}
 
                 <EventList
-                  events={leadEvents}
+                  events={displayedEvents}
                   onEdit={handleEditEvent}
                   onDelete={onDeleteEvent}
                 />
