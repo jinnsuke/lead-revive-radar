@@ -111,6 +111,10 @@ const EventEditDialog: React.FC<EventEditDialogProps> = ({
 
   if (!event) return null;
 
+  // Create today's date for comparison
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-md">
@@ -172,7 +176,7 @@ const EventEditDialog: React.FC<EventEditDialogProps> = ({
                     mode="single"
                     selected={startDate}
                     onSelect={(date) => date && setStartDate(date)}
-                    disabled={(date) => date < new Date().setHours(0, 0, 0, 0)}
+                    disabled={(date) => date < today}
                     initialFocus
                     className="pointer-events-auto"
                   />
@@ -215,7 +219,7 @@ const EventEditDialog: React.FC<EventEditDialogProps> = ({
                     mode="single"
                     selected={endDate}
                     onSelect={(date) => date && setEndDate(date)}
-                    disabled={(date) => date < new Date().setHours(0, 0, 0, 0)}
+                    disabled={(date) => date < today}
                     initialFocus
                     className="pointer-events-auto"
                   />

@@ -74,6 +74,10 @@ const EventForm: React.FC<EventFormProps> = ({ lead, event, onSubmit, onCancel }
     });
   };
 
+  // Create today's date for comparison
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
   return (
     <div className="border rounded-lg p-4 bg-gray-50">
       <form onSubmit={handleSubmit} className="space-y-4">
@@ -130,7 +134,7 @@ const EventForm: React.FC<EventFormProps> = ({ lead, event, onSubmit, onCancel }
                   mode="single"
                   selected={startDate}
                   onSelect={(date) => date && setStartDate(date)}
-                  disabled={(date) => date < new Date().setHours(0, 0, 0, 0)}
+                  disabled={(date) => date < today}
                   initialFocus
                   className="pointer-events-auto"
                 />
@@ -173,7 +177,7 @@ const EventForm: React.FC<EventFormProps> = ({ lead, event, onSubmit, onCancel }
                   mode="single"
                   selected={endDate}
                   onSelect={(date) => date && setEndDate(date)}
-                  disabled={(date) => date < new Date().setHours(0, 0, 0, 0)}
+                  disabled={(date) => date < today}
                   initialFocus
                   className="pointer-events-auto"
                 />
