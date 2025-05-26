@@ -4,6 +4,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sh
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Calendar, FileText, Plus } from 'lucide-react';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { Lead } from '@/types/lead';
 import { Event } from '@/types/event';
 import EventForm from './EventForm';
@@ -55,7 +56,7 @@ const LeadDetailPanel: React.FC<LeadDetailPanelProps> = ({
 
   return (
     <Sheet open={isOpen} onOpenChange={onClose}>
-      <SheetContent className="w-96 sm:max-w-md">
+      <SheetContent className="w-[500px] sm:max-w-[500px]">
         <SheetHeader>
           <SheetTitle className="text-left">
             {lead.customerName}
@@ -63,7 +64,7 @@ const LeadDetailPanel: React.FC<LeadDetailPanelProps> = ({
           <p className="text-sm text-gray-600">{lead.sku}</p>
         </SheetHeader>
 
-        <div className="mt-6">
+        <ScrollArea className="h-[calc(100vh-120px)] mt-6">
           <Tabs defaultValue="work-diary" className="w-full">
             <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="work-diary" className="text-xs">
@@ -125,7 +126,7 @@ const LeadDetailPanel: React.FC<LeadDetailPanelProps> = ({
               </div>
             </TabsContent>
           </Tabs>
-        </div>
+        </ScrollArea>
       </SheetContent>
     </Sheet>
   );

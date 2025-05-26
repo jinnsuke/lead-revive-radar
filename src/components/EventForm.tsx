@@ -105,12 +105,14 @@ const EventForm: React.FC<EventFormProps> = ({ lead, event, onSubmit, onCancel }
                 <Button
                   variant="outline"
                   className={cn(
-                    "w-full justify-start text-left font-normal",
+                    "w-full justify-start text-left font-normal h-10",
                     !startDate && "text-muted-foreground"
                   )}
                 >
-                  <CalendarIcon className="mr-2 h-4 w-4" />
-                  {startDate ? format(startDate, "PPP") : <span>Pick date</span>}
+                  <CalendarIcon className="mr-2 h-4 w-4 flex-shrink-0" />
+                  <span className="truncate">
+                    {startDate ? format(startDate, "MMM dd, yyyy") : "Pick date"}
+                  </span>
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0" align="start">
@@ -132,6 +134,7 @@ const EventForm: React.FC<EventFormProps> = ({ lead, event, onSubmit, onCancel }
               type="time"
               value={startTime}
               onChange={(e) => setStartTime(e.target.value)}
+              className="h-10"
             />
           </div>
         </div>
@@ -144,12 +147,14 @@ const EventForm: React.FC<EventFormProps> = ({ lead, event, onSubmit, onCancel }
                 <Button
                   variant="outline"
                   className={cn(
-                    "w-full justify-start text-left font-normal",
+                    "w-full justify-start text-left font-normal h-10",
                     !endDate && "text-muted-foreground"
                   )}
                 >
-                  <CalendarIcon className="mr-2 h-4 w-4" />
-                  {endDate ? format(endDate, "PPP") : <span>Pick date</span>}
+                  <CalendarIcon className="mr-2 h-4 w-4 flex-shrink-0" />
+                  <span className="truncate">
+                    {endDate ? format(endDate, "MMM dd, yyyy") : "Pick date"}
+                  </span>
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0" align="start">
@@ -171,6 +176,7 @@ const EventForm: React.FC<EventFormProps> = ({ lead, event, onSubmit, onCancel }
               type="time"
               value={endTime}
               onChange={(e) => setEndTime(e.target.value)}
+              className="h-10"
             />
           </div>
         </div>
