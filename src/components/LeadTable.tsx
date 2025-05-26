@@ -8,9 +8,10 @@ import { Checkbox } from '@/components/ui/checkbox';
 
 interface LeadTableProps {
   leads: Lead[];
+  onLeadClick: (lead: Lead) => void;
 }
 
-const LeadTable: React.FC<LeadTableProps> = ({ leads }) => {
+const LeadTable: React.FC<LeadTableProps> = ({ leads, onLeadClick }) => {
   return (
     <div className="overflow-x-auto">
       <Table>
@@ -45,7 +46,14 @@ const LeadTable: React.FC<LeadTableProps> = ({ leads }) => {
                     <TableCell className="text-crm-blue">{lead.warehouseLink}</TableCell>
                     <TableCell>{lead.source}</TableCell>
                     <TableCell className="max-w-xs truncate">{lead.intention}</TableCell>
-                    <TableCell>{lead.customerName}</TableCell>
+                    <TableCell>
+                      <button
+                        onClick={() => onLeadClick(lead)}
+                        className="text-blue-600 hover:text-blue-800 hover:underline font-medium"
+                      >
+                        {lead.customerName}
+                      </button>
+                    </TableCell>
                     <TableCell>{lead.phoneNumber}</TableCell>
                     <TableCell>
                       <div className="flex flex-wrap gap-1">
