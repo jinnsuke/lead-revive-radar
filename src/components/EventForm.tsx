@@ -7,8 +7,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { format } from 'date-fns';
-import { CalendarIcon, Phone, Calendar as CalendarIconType, Users, MoreHorizontal } from 'lucide-react';
+import { format, addHours } from 'date-fns';
+import { CalendarIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Lead } from '@/types/lead';
 import { Event, EventType } from '@/types/event';
@@ -28,16 +28,26 @@ interface EventFormProps {
 }
 
 const EventForm: React.FC<EventFormProps> = ({ lead, event, onSubmit, onCancel }) => {
+  // Function to get the next available hour
+  const getNextAvailableHour = () => {
+    const now = new Date();
+    const nextHour = new Date(now);
+    nextHour.setMinutes(0, 0, 0);
+    nextHour.setHours(now.getHours() + 1);
+    return nextHour;
+  };
+
   const [title, setTitle] = useState(event?.title || '');
   const [type, setType] = useState<Event['type']>(event?.type || 'call');
-  const [startDate, setStartDate] = useState<Date>(event?.startTime || new Date());
-  const [endDate, setEndDate] = useState<Date>(event?.endTime || new Date());
-  const [startTime, setStartTime] = useState(
-    event?.startTime ? format(event.startTime, 'HH:mm') : '09:00'
-  );
-  const [endTime, setEndTime] = useState(
-    event?.endTime ? format(event.endTime, 'HH:mm') : '10:00'
-  );
+  
+  // Set default dates and times
+  const defaultStartTime = event?.startTime || getNextAvailableHour();
+  const defaultEndTime = event?.endTime || addHours(defaultStartTime, 1);
+  
+  const [startDate, setStartDate] = useState<Date>(defaultStartTime);
+  const [endDate, setEndDate] = useState<Date>(defaultEndTime);
+  const [startTime, setStartTime] = useState(format(defaultStartTime, 'HH:mm'));
+  const [endTime, setEndTime] = useState(format(defaultEndTime, 'HH:mm'));
   const [notes, setNotes] = useState(event?.notes || '');
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -120,6 +130,7 @@ const EventForm: React.FC<EventFormProps> = ({ lead, event, onSubmit, onCancel }
                   mode="single"
                   selected={startDate}
                   onSelect={(date) => date && setStartDate(date)}
+                  disabled={(date) => date < new Date().setHours(0, 0, 0, 0)}
                   initialFocus
                   className="pointer-events-auto"
                 />
@@ -162,6 +173,7 @@ const EventForm: React.FC<EventFormProps> = ({ lead, event, onSubmit, onCancel }
                   mode="single"
                   selected={endDate}
                   onSelect={(date) => date && setEndDate(date)}
+                  disabled={(date) => date < new Date().setHours(0, 0, 0, 0)}
                   initialFocus
                   className="pointer-events-auto"
                 />

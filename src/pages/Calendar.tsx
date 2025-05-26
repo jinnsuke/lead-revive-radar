@@ -8,6 +8,7 @@ import { Event } from '@/types/event';
 import { Lead } from '@/types/lead';
 import { getLeads } from '@/services/leadService';
 import LeadDetailPanel from '@/components/LeadDetailPanel';
+import EventEditDialog from '@/components/EventEditDialog';
 
 interface CalendarPageProps {
   events: Event[];
@@ -22,6 +23,8 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ events, onAddEvent, onUpdat
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [isPanelOpen, setIsPanelOpen] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
+  const [editingEvent, setEditingEvent] = useState<Event | null>(null);
+  const [isEventDialogOpen, setIsEventDialogOpen] = useState(false);
 
   const leads = getLeads();
   const weekStart = startOfWeek(currentDate, { weekStartsOn: 1 });
@@ -55,11 +58,24 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ events, onAddEvent, onUpdat
   };
 
   const handleEventClick = (event: Event) => {
+    setEditingEvent(event);
+    setIsEventDialogOpen(true);
+  };
+
+  const handleLeadNameClick = (event: Event) => {
     const lead = leads.find(l => l.id === event.leadId);
     if (lead) {
       setSelectedLead(lead);
       setSelectedEvent(event);
       setIsPanelOpen(true);
+    }
+  };
+
+  const handleUpdateEvent = (eventData: Omit<Event, 'id'>) => {
+    if (editingEvent) {
+      onUpdateEvent(editingEvent.id, eventData);
+      setEditingEvent(null);
+      setIsEventDialogOpen(false);
     }
   };
 
@@ -156,7 +172,13 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ events, onAddEvent, onUpdat
                           <div className="text-xs opacity-75">
                             {format(event.startTime, 'HH:mm')} - {format(event.endTime, 'HH:mm')}
                           </div>
-                          <div className="text-xs opacity-75 truncate">
+                          <div 
+                            className="text-xs opacity-75 truncate hover:underline"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleLeadNameClick(event);
+                            }}
+                          >
                             {event.leadName}
                           </div>
                         </div>
@@ -193,7 +215,15 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ events, onAddEvent, onUpdat
                   <p className="text-sm mb-1">
                     {format(event.startTime, 'HH:mm')} - {format(event.endTime, 'HH:mm')}
                   </p>
-                  <p className="text-sm font-medium">{event.leadName}</p>
+                  <p 
+                    className="text-sm font-medium hover:underline"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleLeadNameClick(event);
+                    }}
+                  >
+                    {event.leadName}
+                  </p>
                   {event.notes && (
                     <p className="text-sm text-gray-600 mt-2">{event.notes}</p>
                   )}
@@ -216,6 +246,17 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ events, onAddEvent, onUpdat
         onUpdateEvent={onUpdateEvent}
         onDeleteEvent={onDeleteEvent}
         initialEditingEvent={selectedEvent}
+      />
+
+      <EventEditDialog
+        event={editingEvent}
+        isOpen={isEventDialogOpen}
+        onClose={() => {
+          setIsEventDialogOpen(false);
+          setEditingEvent(null);
+        }}
+        onUpdate={handleUpdateEvent}
+        onDelete={onDeleteEvent}
       />
     </div>
   );
