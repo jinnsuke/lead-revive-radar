@@ -5,15 +5,25 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Calendar as CalendarIcon, ChevronLeft, ChevronRight } from 'lucide-react';
 import { format, startOfWeek, endOfWeek, eachDayOfInterval, addWeeks, subWeeks, isSameDay, startOfDay } from 'date-fns';
 import { Event } from '@/types/event';
+import { Lead } from '@/types/lead';
+import { getLeads } from '@/services/leadService';
+import LeadDetailPanel from '@/components/LeadDetailPanel';
 
 interface CalendarPageProps {
   events: Event[];
+  onAddEvent: (event: Omit<Event, 'id'>) => void;
+  onUpdateEvent: (eventId: string, updates: Partial<Event>) => void;
+  onDeleteEvent: (eventId: string) => void;
 }
 
-const CalendarPage: React.FC<CalendarPageProps> = ({ events }) => {
+const CalendarPage: React.FC<CalendarPageProps> = ({ events, onAddEvent, onUpdateEvent, onDeleteEvent }) => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [view, setView] = useState<'day' | 'week' | 'month'>('week');
+  const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
+  const [isPanelOpen, setIsPanelOpen] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
 
+  const leads = getLeads();
   const weekStart = startOfWeek(currentDate, { weekStartsOn: 1 });
   const weekEnd = endOfWeek(currentDate, { weekStartsOn: 1 });
   const daysInWeek = eachDayOfInterval({ start: weekStart, end: weekEnd });
@@ -41,6 +51,15 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ events }) => {
       case 'call': return '📞';
       case 'meeting': return '🚗';
       default: return '📋';
+    }
+  };
+
+  const handleEventClick = (event: Event) => {
+    const lead = leads.find(l => l.id === event.leadId);
+    if (lead) {
+      setSelectedLead(lead);
+      setSelectedEvent(event);
+      setIsPanelOpen(true);
     }
   };
 
@@ -127,7 +146,8 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ events }) => {
                       {dayEvents.map((event) => (
                         <div
                           key={event.id}
-                          className={`text-xs p-1 rounded border mb-1 cursor-pointer hover:shadow-sm ${getEventTypeColor(event.type)}`}
+                          className={`text-xs p-1 rounded border mb-1 cursor-pointer hover:shadow-md transition-shadow ${getEventTypeColor(event.type)}`}
+                          onClick={() => handleEventClick(event)}
                         >
                           <div className="flex items-center gap-1">
                             <span>{getEventIcon(event.type)}</span>
@@ -163,7 +183,8 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ events }) => {
               getEventsForDay(currentDate).map((event) => (
                 <div
                   key={event.id}
-                  className={`p-4 rounded-lg border ${getEventTypeColor(event.type)}`}
+                  className={`p-4 rounded-lg border cursor-pointer hover:shadow-md transition-shadow ${getEventTypeColor(event.type)}`}
+                  onClick={() => handleEventClick(event)}
                 >
                   <div className="flex items-center gap-2 mb-2">
                     <span className="text-lg">{getEventIcon(event.type)}</span>
@@ -182,6 +203,20 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ events }) => {
           </div>
         </div>
       )}
+
+      <LeadDetailPanel
+        lead={selectedLead}
+        isOpen={isPanelOpen}
+        onClose={() => {
+          setIsPanelOpen(false);
+          setSelectedEvent(null);
+        }}
+        events={events}
+        onAddEvent={onAddEvent}
+        onUpdateEvent={onUpdateEvent}
+        onDeleteEvent={onDeleteEvent}
+        initialEditingEvent={selectedEvent}
+      />
     </div>
   );
 };

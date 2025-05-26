@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
@@ -18,6 +18,7 @@ interface LeadDetailPanelProps {
   onAddEvent: (event: Omit<Event, 'id'>) => void;
   onUpdateEvent: (eventId: string, updates: Partial<Event>) => void;
   onDeleteEvent: (eventId: string) => void;
+  initialEditingEvent?: Event | null;
 }
 
 const LeadDetailPanel: React.FC<LeadDetailPanelProps> = ({
@@ -27,10 +28,27 @@ const LeadDetailPanel: React.FC<LeadDetailPanelProps> = ({
   events,
   onAddEvent,
   onUpdateEvent,
-  onDeleteEvent
+  onDeleteEvent,
+  initialEditingEvent
 }) => {
   const [showEventForm, setShowEventForm] = useState(false);
   const [editingEvent, setEditingEvent] = useState<Event | null>(null);
+
+  // Set the initial editing event when panel opens
+  useEffect(() => {
+    if (initialEditingEvent && isOpen) {
+      setEditingEvent(initialEditingEvent);
+      setShowEventForm(true);
+    }
+  }, [initialEditingEvent, isOpen]);
+
+  // Reset state when panel closes
+  useEffect(() => {
+    if (!isOpen) {
+      setShowEventForm(false);
+      setEditingEvent(null);
+    }
+  }, [isOpen]);
 
   if (!lead) return null;
 
@@ -60,7 +78,7 @@ const LeadDetailPanel: React.FC<LeadDetailPanelProps> = ({
 
   return (
     <Sheet open={isOpen} onOpenChange={onClose}>
-      <SheetContent className="w-[500px] sm:max-w-[500px]">
+      <SheetContent className="w-[600px] sm:max-w-[600px]">
         <SheetHeader>
           <SheetTitle className="text-left">
             {lead.customerName}
@@ -69,7 +87,7 @@ const LeadDetailPanel: React.FC<LeadDetailPanelProps> = ({
         </SheetHeader>
 
         <ScrollArea className="h-[calc(100vh-120px)] mt-6">
-          <Tabs defaultValue="work-diary" className="w-full">
+          <Tabs defaultValue="events" className="w-full">
             <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="work-diary" className="text-xs">
                 Nhật ký làm việc

@@ -53,7 +53,12 @@ const App = () => {
               <Route path="/calendar" element={
                 <div className="flex min-h-screen bg-white w-full">
                   <Sidebar />
-                  <Calendar events={events} />
+                  <Calendar 
+                    events={events}
+                    onAddEvent={handleAddEvent}
+                    onUpdateEvent={handleUpdateEvent}
+                    onDeleteEvent={handleDeleteEvent}
+                  />
                 </div>
               } />
               <Route path="*" element={<NotFound />} />
