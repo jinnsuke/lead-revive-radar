@@ -18,6 +18,8 @@ interface LeadFilterProps {
   selectedTags: string[];
   setSelectedTags: (tags: string[]) => void;
   leads: Lead[];
+  showHotLeads: boolean;
+  setShowHotLeads: (show: boolean) => void;
 }
 
 const LeadFilter: React.FC<LeadFilterProps> = ({ 
@@ -27,7 +29,9 @@ const LeadFilter: React.FC<LeadFilterProps> = ({
   setFilterSource,
   selectedTags,
   setSelectedTags,
-  leads 
+  leads,
+  showHotLeads,
+  setShowHotLeads
 }) => {
   const [daysFilter, setDaysFilter] = useState<string>('');
   const [qualifiedFilter, setQualifiedFilter] = useState<string>('all');
@@ -59,6 +63,10 @@ const LeadFilter: React.FC<LeadFilterProps> = ({
     } else {
       setSelectedTags([...selectedTags, tag]);
     }
+  };
+
+  const handleHotLeadsToggle = () => {
+    setShowHotLeads(!showHotLeads);
   };
 
   // Get unique sources from leads
@@ -374,22 +382,24 @@ const LeadFilter: React.FC<LeadFilterProps> = ({
         </Popover>
       </div>
 
-      {/* Filter Options Row */}
-      <div className="flex flex-wrap items-center gap-2">
-        {/* Hot Leads Filter */}
-        <Button 
-          variant={showHotLeads ? 'default' : 'outline'}
-          onClick={() => setShowHotLeads(!showHotLeads)}
-          className="flex items-center gap-2"
-        >
-          🔥 Hot Leads
-        </Button>
-      </div>
-
       {/* Tag Filter Section */}
       <div className="space-y-2">
         <Label className="text-sm font-medium">Filter by Tags:</Label>
         <div className="flex flex-wrap gap-2">
+          {/* Hot Leads Filter - moved here */}
+          <Badge
+            variant={showHotLeads ? "destructive" : "outline"}
+            className={`cursor-pointer transition-colors ${
+              showHotLeads
+                ? "bg-red-500 text-white hover:bg-red-600"
+                : "hover:bg-gray-100"
+            }`}
+            onClick={handleHotLeadsToggle}
+          >
+            🔥 Hot Leads
+          </Badge>
+          
+          {/* Regular Tags */}
           {availableTags.map(tag => (
             <Badge
               key={tag}
@@ -407,14 +417,17 @@ const LeadFilter: React.FC<LeadFilterProps> = ({
             </Badge>
           ))}
         </div>
-        {selectedTags.length > 0 && (
+        {(selectedTags.length > 0 || showHotLeads) && (
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => setSelectedTags([])}
+            onClick={() => {
+              setSelectedTags([]);
+              setShowHotLeads(false);
+            }}
             className="text-sm text-gray-500 hover:text-gray-700"
           >
-            Clear all tags
+            Clear all filters
           </Button>
         )}
       </div>

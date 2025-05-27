@@ -28,6 +28,7 @@ const Index: React.FC<IndexProps> = ({ events, onAddEvent, onUpdateEvent, onDele
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [showFilters, setShowFilters] = useState(false);
   const [leads, setLeads] = useState<Lead[]>(getLeads());
+  const [showHotLeads, setShowHotLeads] = useState<boolean>(false);
 
   const handleToggleHotLead = (leadId: string) => {
     const updatedLeads = toggleHotLead(leadId, leads);
@@ -53,9 +54,11 @@ const Index: React.FC<IndexProps> = ({ events, onAddEvent, onUpdateEvent, onDele
       const matchesTags = selectedTags.length === 0 || 
         selectedTags.every(tag => lead.tags.includes(tag));
 
-      return matchesSearch && matchesStatus && matchesSource && matchesTags;
+      const matchesHotLeads = !showHotLeads || lead.isHot;
+
+      return matchesSearch && matchesStatus && matchesSource && matchesTags && matchesHotLeads;
     });
-  }, [leads, searchTerm, filterStatus, filterSource, selectedTags]);
+  }, [leads, searchTerm, filterStatus, filterSource, selectedTags, showHotLeads]);
 
   const handleLeadClick = (lead: Lead) => {
     setSelectedLead(lead);
@@ -119,6 +122,8 @@ const Index: React.FC<IndexProps> = ({ events, onAddEvent, onUpdateEvent, onDele
                 selectedTags={selectedTags}
                 setSelectedTags={setSelectedTags}
                 leads={leads}
+                showHotLeads={showHotLeads}
+                setShowHotLeads={setShowHotLeads}
               />
             </div>
           )}
