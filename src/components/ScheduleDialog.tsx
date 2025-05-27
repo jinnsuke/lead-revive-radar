@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { format, isToday, isTomorrow, isThisWeek, isThisMonth, startOfDay } from 'date-fns';
 import { Calendar, Clock, Phone } from 'lucide-react';
 import { Event } from '@/types/event';
@@ -88,29 +89,29 @@ const ScheduleDialog: React.FC<ScheduleDialogProps> = ({ events, onAddEvent, onU
             View Schedule
           </Button>
         </DialogTrigger>
-        <DialogContent className="max-w-4xl max-h-[80vh] overflow-hidden">
-          <DialogHeader>
+        <DialogContent className="max-w-4xl h-[80vh] flex flex-col">
+          <DialogHeader className="flex-shrink-0">
             <DialogTitle className="flex items-center gap-2">
               <Calendar className="w-5 h-5" />
               Schedule
             </DialogTitle>
           </DialogHeader>
           
-          <div className="overflow-y-auto pr-2">
-            {Object.keys(groupedEvents).length === 0 ? (
-              <div className="p-8 text-center text-gray-500">
-                <Calendar className="w-12 h-12 mx-auto mb-4 text-gray-300" />
-                <p className="text-lg font-medium mb-2">No upcoming events</p>
-                <p>Your schedule is clear. Time to plan something!</p>
-              </div>
-            ) : (
-              <div className="space-y-6">
-                {Object.entries(groupedEvents).map(([dateKey, dayEvents]) => {
+          <ScrollArea className="flex-1 pr-4">
+            <div className="space-y-6 pb-4">
+              {Object.keys(groupedEvents).length === 0 ? (
+                <div className="p-8 text-center text-gray-500">
+                  <Calendar className="w-12 h-12 mx-auto mb-4 text-gray-300" />
+                  <p className="text-lg font-medium mb-2">No upcoming events</p>
+                  <p>Your schedule is clear. Time to plan something!</p>
+                </div>
+              ) : (
+                Object.entries(groupedEvents).map(([dateKey, dayEvents]) => {
                   const date = new Date(dateKey);
                   
                   return (
-                    <div key={dateKey}>
-                      <div className="flex items-center gap-4 mb-4 sticky top-0 bg-white py-2">
+                    <div key={dateKey} className="space-y-4">
+                      <div className="flex items-center gap-4 sticky top-0 bg-white py-2 z-10 border-b">
                         <div className="text-lg font-semibold text-gray-900 min-w-32">
                           {getDateLabel(date)}
                         </div>
@@ -170,10 +171,10 @@ const ScheduleDialog: React.FC<ScheduleDialogProps> = ({ events, onAddEvent, onU
                       </div>
                     </div>
                   );
-                })}
-              </div>
-            )}
-          </div>
+                })
+              )}
+            </div>
+          </ScrollArea>
         </DialogContent>
       </Dialog>
 
