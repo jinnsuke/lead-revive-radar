@@ -11,4 +11,5 @@ export interface Lead {
   vehicleDescription: string;
   lastEditTime: Date;
   isStale: boolean;
+  isHot: boolean;
 }

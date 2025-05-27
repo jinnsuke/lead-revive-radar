@@ -9,7 +9,7 @@ import LeadDetailPanel from '@/components/LeadDetailPanel';
 import ScheduleDialog from '@/components/ScheduleDialog';
 import { Lead } from '@/types/lead';
 import { Event } from '@/types/event';
-import { getLeads } from '@/services/leadService';
+import { getLeads, toggleHotLead } from '@/services/leadService';
 import Sidebar from '@/components/Sidebar';
 
 interface IndexProps {
@@ -25,9 +25,14 @@ const Index: React.FC<IndexProps> = ({ events, onAddEvent, onUpdateEvent, onDele
   const [isPanelOpen, setIsPanelOpen] = useState(false);
   const [filterStatus, setFilterStatus] = useState<'all' | 'stale' | 'fresh'>('all');
   const [filterSource, setFilterSource] = useState<string>('all');
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [showFilters, setShowFilters] = useState(false);
+  const [leads, setLeads] = useState<Lead[]>(getLeads());
 
-  const leads = getLeads();
+  const handleToggleHotLead = (leadId: string) => {
+    const updatedLeads = toggleHotLead(leadId, leads);
+    setLeads(updatedLeads);
+  };
 
   const filteredLeads = useMemo(() => {
     return leads.filter(lead => {
@@ -45,9 +50,12 @@ const Index: React.FC<IndexProps> = ({ events, onAddEvent, onUpdateEvent, onDele
 
       const matchesSource = filterSource === 'all' || lead.source === filterSource;
 
-      return matchesSearch && matchesStatus && matchesSource;
+      const matchesTags = selectedTags.length === 0 || 
+        selectedTags.every(tag => lead.tags.includes(tag));
+
+      return matchesSearch && matchesStatus && matchesSource && matchesTags;
     });
-  }, [leads, searchTerm, filterStatus, filterSource]);
+  }, [leads, searchTerm, filterStatus, filterSource, selectedTags]);
 
   const handleLeadClick = (lead: Lead) => {
     setSelectedLead(lead);
@@ -108,6 +116,8 @@ const Index: React.FC<IndexProps> = ({ events, onAddEvent, onUpdateEvent, onDele
                 setFilterStatus={setFilterStatus}
                 filterSource={filterSource}
                 setFilterSource={setFilterSource}
+                selectedTags={selectedTags}
+                setSelectedTags={setSelectedTags}
                 leads={leads}
               />
             </div>
@@ -117,6 +127,7 @@ const Index: React.FC<IndexProps> = ({ events, onAddEvent, onUpdateEvent, onDele
         <LeadTable 
           leads={filteredLeads} 
           onLeadClick={handleLeadClick}
+          onToggleHotLead={handleToggleHotLead}
         />
 
         <LeadDetailPanel

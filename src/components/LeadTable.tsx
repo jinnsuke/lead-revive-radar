@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { Flame } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Lead } from '@/types/lead';
 import { getDaysSinceLastEdit } from '@/services/leadService';
@@ -9,9 +10,10 @@ import { Checkbox } from '@/components/ui/checkbox';
 interface LeadTableProps {
   leads: Lead[];
   onLeadClick: (lead: Lead) => void;
+  onToggleHotLead: (leadId: string) => void;
 }
 
-const LeadTable: React.FC<LeadTableProps> = ({ leads, onLeadClick }) => {
+const LeadTable: React.FC<LeadTableProps> = ({ leads, onLeadClick, onToggleHotLead }) => {
   return (
     <div className="overflow-x-auto">
       <Table>
@@ -47,17 +49,28 @@ const LeadTable: React.FC<LeadTableProps> = ({ leads, onLeadClick }) => {
                     <TableCell>{lead.source}</TableCell>
                     <TableCell className="max-w-xs truncate">{lead.intention}</TableCell>
                     <TableCell>
-                      <button
-                        onClick={() => onLeadClick(lead)}
-                        className="text-blue-600 hover:text-blue-800 hover:underline font-medium"
-                      >
-                        {lead.customerName}
-                      </button>
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => onLeadClick(lead)}
+                          className="text-blue-600 hover:text-blue-800 hover:underline font-medium"
+                        >
+                          {lead.customerName}
+                        </button>
+                        <button
+                          onClick={() => onToggleHotLead(lead.id)}
+                          className="p-1 rounded hover:bg-gray-100 transition-colors"
+                        >
+                          <Flame
+                            size={16}
+                            className={lead.isHot ? "text-red-500 fill-red-500" : "text-gray-400"}
+                          />
+                        </button>
+                      </div>
                     </TableCell>
                     <TableCell>{lead.phoneNumber}</TableCell>
                     <TableCell>
                       <div className="flex flex-wrap gap-1">
-                        {lead.tags.map((tag, index) => (
+                        {lead.tags.filter(tag => tag !== "Lead hot").map((tag, index) => (
                           <span 
                             key={index} 
                             className="bg-green-100 text-green-800 text-xs px-2 py-0.5 rounded-full"

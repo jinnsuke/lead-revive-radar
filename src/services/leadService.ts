@@ -20,10 +20,11 @@ const generateMockLeads = (): Lead[] => {
       intention: "Within 1 week - Vucar AZ - Owner - Change to new car - Not available yet, Vucar supports consulting",
       customerName: "Page",
       phoneNumber: "097****977",
-      tags: ["OTP"],
+      tags: ["OTP", "Khách hàng cũ"],
       vehicleDescription: "Toyota Camry 2.5",
       lastEditTime: new Date(new Date().setDate(new Date().getDate() - 5)),
-      isStale: false
+      isStale: false,
+      isHot: true
     },
     {
       id: "2",
@@ -33,10 +34,11 @@ const generateMockLeads = (): Lead[] => {
       intention: "N/A",
       customerName: "Huynh Xuan Phong",
       phoneNumber: "096****914",
-      tags: ["OTP"],
+      tags: ["OTP", "Đã kiểm định"],
       vehicleDescription: "Honda Civic 1.5",
       lastEditTime: new Date(new Date().setDate(new Date().getDate() - 1)),
-      isStale: false
+      isStale: false,
+      isHot: false
     },
     {
       id: "3",
@@ -49,7 +51,8 @@ const generateMockLeads = (): Lead[] => {
       tags: ["OTP"],
       vehicleDescription: "Mercedes GLC 300",
       lastEditTime: new Date(new Date().setDate(new Date().getDate() - 4)),
-      isStale: false
+      isStale: false,
+      isHot: false
     },
     {
       id: "4",
@@ -59,10 +62,11 @@ const generateMockLeads = (): Lead[] => {
       intention: "Looking for luxury SUV - Ready to buy within 2 weeks",
       customerName: "Tran Van Nam",
       phoneNumber: "090****234",
-      tags: ["High Value"],
+      tags: ["Đã kiểm định", "Khách hàng cũ"],
       vehicleDescription: "BMW X5",
       lastEditTime: new Date(new Date().setDate(new Date().getDate() - 6)),
-      isStale: false
+      isStale: false,
+      isHot: true
     },
     {
       id: "5",
@@ -72,10 +76,11 @@ const generateMockLeads = (): Lead[] => {
       intention: "First time buyer - Needs financing options",
       customerName: "Le Minh Tuan",
       phoneNumber: "098****567",
-      tags: ["New Driver"],
+      tags: ["OTP"],
       vehicleDescription: "Hyundai Accent",
       lastEditTime: new Date(new Date().setDate(new Date().getDate() - 2)),
-      isStale: false
+      isStale: false,
+      isHot: false
     }
   ];
 
@@ -115,4 +120,30 @@ export const filterLeadsByLastUpdate = (leads: Lead[], days: number): Lead[] => 
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     return diffDays > days;
   });
+};
+
+// Toggle hot lead status
+export const toggleHotLead = (leadId: string, leads: Lead[]): Lead[] => {
+  return leads.map(lead => {
+    if (lead.id === leadId) {
+      const isHot = !lead.isHot;
+      const tags = isHot 
+        ? [...lead.tags.filter(tag => tag !== "Lead hot"), "Lead hot"]
+        : lead.tags.filter(tag => tag !== "Lead hot");
+      
+      return {
+        ...lead,
+        isHot,
+        tags
+      };
+    }
+    return lead;
+  });
+};
+
+// Get all unique tags from leads (excluding "Lead hot")
+export const getAllTags = (leads: Lead[]): string[] => {
+  const allTags = leads.flatMap(lead => lead.tags);
+  const uniqueTags = Array.from(new Set(allTags));
+  return uniqueTags.filter(tag => tag !== "Lead hot");
 };
