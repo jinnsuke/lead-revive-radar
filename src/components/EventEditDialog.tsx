@@ -8,7 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { format, addHours, setHours, setMinutes } from 'date-fns';
+import { format, addHours } from 'date-fns';
 import { CalendarIcon, Trash2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Event, EventType } from '@/types/event';
@@ -38,9 +38,7 @@ const EventEditDialog: React.FC<EventEditDialogProps> = ({
   const [title, setTitle] = useState('');
   const [type, setType] = useState<Event['type']>('call');
   const [startDate, setStartDate] = useState<Date>(new Date());
-  const [endDate, setEndDate] = useState<Date>(new Date());
   const [startTime, setStartTime] = useState('09:00');
-  const [endTime, setEndTime] = useState('10:00');
   const [notes, setNotes] = useState('');
 
   // Function to get the next available hour
@@ -57,21 +55,16 @@ const EventEditDialog: React.FC<EventEditDialogProps> = ({
       setTitle(event.title);
       setType(event.type);
       setStartDate(event.startTime);
-      setEndDate(event.endTime);
       setStartTime(format(event.startTime, 'HH:mm'));
-      setEndTime(format(event.endTime, 'HH:mm'));
       setNotes(event.notes || '');
     } else {
       // Reset to defaults
       const nextHour = getNextAvailableHour();
-      const oneHourLater = addHours(nextHour, 1);
       
       setTitle('');
       setType('call');
       setStartDate(nextHour);
-      setEndDate(oneHourLater);
       setStartTime(format(nextHour, 'HH:mm'));
-      setEndTime(format(oneHourLater, 'HH:mm'));
       setNotes('');
     }
   }, [event, isOpen]);
@@ -82,13 +75,12 @@ const EventEditDialog: React.FC<EventEditDialogProps> = ({
     if (!event) return;
 
     const [startHour, startMinute] = startTime.split(':').map(Number);
-    const [endHour, endMinute] = endTime.split(':').map(Number);
     
     const startDateTime = new Date(startDate);
     startDateTime.setHours(startHour, startMinute);
     
-    const endDateTime = new Date(endDate);
-    endDateTime.setHours(endHour, endMinute);
+    // Automatically set end time to 1 hour after start time
+    const endDateTime = addHours(startDateTime, 1);
 
     onUpdate({
       title,
@@ -196,47 +188,11 @@ const EventEditDialog: React.FC<EventEditDialogProps> = ({
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <Label>End Date</Label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className={cn(
-                      "w-full justify-start text-left font-normal h-10",
-                      !endDate && "text-muted-foreground"
-                    )}
-                  >
-                    <CalendarIcon className="mr-2 h-4 w-4 flex-shrink-0" />
-                    <span className="truncate">
-                      {endDate ? format(endDate, "MMM dd, yyyy") : "Pick date"}
-                    </span>
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    mode="single"
-                    selected={endDate}
-                    onSelect={(date) => date && setEndDate(date)}
-                    disabled={(date) => date < today}
-                    initialFocus
-                    className="pointer-events-auto"
-                  />
-                </PopoverContent>
-              </Popover>
-            </div>
-
-            <div>
-              <Label htmlFor="endTime">End Time</Label>
-              <Input
-                id="endTime"
-                type="time"
-                value={endTime}
-                onChange={(e) => setEndTime(e.target.value)}
-                className="h-10"
-              />
-            </div>
+          <div className="text-sm text-gray-600 bg-blue-50 p-3 rounded">
+            <strong>Duration:</strong> 1 hour (ends at {startTime ? 
+              format(addHours(new Date(`2000-01-01T${startTime}`), 1), 'HH:mm') : 
+              '--:--'
+            })
           </div>
 
           <div>

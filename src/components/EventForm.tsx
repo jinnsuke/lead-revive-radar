@@ -33,25 +33,21 @@ const EventForm: React.FC<EventFormProps> = ({ lead, event, onSubmit, onCancel }
   
   // Set default dates and times
   const defaultStartTime = event?.startTime || getNextAvailableHour();
-  const defaultEndTime = event?.endTime || addHours(defaultStartTime, 1);
   
   const [startDate, setStartDate] = useState<Date>(defaultStartTime);
-  const [endDate, setEndDate] = useState<Date>(defaultEndTime);
   const [startTime, setStartTime] = useState(format(defaultStartTime, 'HH:mm'));
-  const [endTime, setEndTime] = useState(format(defaultEndTime, 'HH:mm'));
   const [notes, setNotes] = useState(event?.notes || '');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
     const [startHour, startMinute] = startTime.split(':').map(Number);
-    const [endHour, endMinute] = endTime.split(':').map(Number);
     
     const startDateTime = new Date(startDate);
     startDateTime.setHours(startHour, startMinute);
     
-    const endDateTime = new Date(endDate);
-    endDateTime.setHours(endHour, endMinute);
+    // Automatically set end time to 1 hour after start time
+    const endDateTime = addHours(startDateTime, 1);
 
     onSubmit({
       title,
@@ -126,47 +122,11 @@ const EventForm: React.FC<EventFormProps> = ({ lead, event, onSubmit, onCancel }
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <Label>End Date</Label>
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  className={cn(
-                    "w-full justify-start text-left font-normal h-10",
-                    !endDate && "text-muted-foreground"
-                  )}
-                >
-                  <CalendarIcon className="mr-2 h-4 w-4 flex-shrink-0" />
-                  <span className="truncate">
-                    {endDate ? format(endDate, "MMM dd, yyyy") : "Pick date"}
-                  </span>
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="start">
-                <Calendar
-                  mode="single"
-                  selected={endDate}
-                  onSelect={(date) => date && setEndDate(date)}
-                  disabled={(date) => date < today}
-                  initialFocus
-                  className="pointer-events-auto"
-                />
-              </PopoverContent>
-            </Popover>
-          </div>
-
-          <div>
-            <Label htmlFor="endTime">End Time</Label>
-            <Input
-              id="endTime"
-              type="time"
-              value={endTime}
-              onChange={(e) => setEndTime(e.target.value)}
-              className="h-10"
-            />
-          </div>
+        <div className="text-sm text-gray-600 bg-blue-50 p-3 rounded">
+          <strong>Duration:</strong> 1 hour (ends at {startTime ? 
+            format(addHours(new Date(`2000-01-01T${startTime}`), 1), 'HH:mm') : 
+            '--:--'
+          })
         </div>
 
         <div>
