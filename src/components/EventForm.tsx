@@ -4,21 +4,13 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { format, addHours } from 'date-fns';
 import { CalendarIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Lead } from '@/types/lead';
-import { Event, EventType } from '@/types/event';
-
-const eventTypes: EventType[] = [
-  { value: 'inspection', label: 'Inspection', icon: '🛠️' },
-  { value: 'call', label: 'Call', icon: '📞' },
-  { value: 'meeting', label: 'Car Sales Meeting', icon: '🚗' },
-  { value: 'other', label: 'Other', icon: '📋' }
-];
+import { Event } from '@/types/event';
 
 interface EventFormProps {
   lead: Lead;
@@ -38,7 +30,6 @@ const EventForm: React.FC<EventFormProps> = ({ lead, event, onSubmit, onCancel }
   };
 
   const [title, setTitle] = useState(event?.title || '');
-  const [type, setType] = useState<Event['type']>(event?.type || 'call');
   
   // Set default dates and times
   const defaultStartTime = event?.startTime || getNextAvailableHour();
@@ -64,7 +55,7 @@ const EventForm: React.FC<EventFormProps> = ({ lead, event, onSubmit, onCancel }
 
     onSubmit({
       title,
-      type,
+      type: 'other', // Default type since we removed the dropdown
       startTime: startDateTime,
       endTime: endDateTime,
       leadId: lead.id,
@@ -90,25 +81,6 @@ const EventForm: React.FC<EventFormProps> = ({ lead, event, onSubmit, onCancel }
             placeholder="Enter event title"
             required
           />
-        </div>
-
-        <div>
-          <Label htmlFor="type">Event Type</Label>
-          <Select value={type} onValueChange={(value) => setType(value as Event['type'])}>
-            <SelectTrigger>
-              <SelectValue placeholder="Select event type" />
-            </SelectTrigger>
-            <SelectContent>
-              {eventTypes.map((eventType) => (
-                <SelectItem key={eventType.value} value={eventType.value}>
-                  <span className="flex items-center">
-                    <span className="mr-2">{eventType.icon}</span>
-                    {eventType.label}
-                  </span>
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
         </div>
 
         <div className="grid grid-cols-2 gap-4">
