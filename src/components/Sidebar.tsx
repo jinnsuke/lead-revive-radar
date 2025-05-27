@@ -1,6 +1,5 @@
-
 import React from 'react';
-import { Home, Users, Car, MessageSquare, Database, Calendar } from 'lucide-react';
+import { Home, Users, Car, MessageSquare, Database } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 const Sidebar: React.FC = () => {
@@ -29,12 +28,6 @@ const Sidebar: React.FC = () => {
             text="CRM V2" 
             active={location.pathname === '/'}
             onClick={() => navigate('/')}
-          />
-          <SidebarItem 
-            icon={<Calendar size={20} />} 
-            text="Schedule" 
-            active={location.pathname === '/calendar'}
-            onClick={() => navigate('/calendar')}
           />
           <SidebarItem 
             icon={<Car size={20} />} 

@@ -1,13 +1,16 @@
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
+import { Search, Plus, Filter } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import LeadTable from '@/components/LeadTable';
 import LeadFilter from '@/components/LeadFilter';
 import LeadDetailPanel from '@/components/LeadDetailPanel';
-import Sidebar from '@/components/Sidebar';
-import { getLeads, filterLeadsByLastUpdate } from '@/services/leadService';
-import { useToast } from "@/components/ui/use-toast";
+import ScheduleDialog from '@/components/ScheduleDialog';
 import { Lead } from '@/types/lead';
 import { Event } from '@/types/event';
+import { getLeads } from '@/services/leadService';
+import Sidebar from '@/components/Sidebar';
 
 interface IndexProps {
   events: Event[];
@@ -17,101 +20,115 @@ interface IndexProps {
 }
 
 const Index: React.FC<IndexProps> = ({ events, onAddEvent, onUpdateEvent, onDeleteEvent }) => {
-  const { toast } = useToast();
-  const [leads, setLeads] = useState<Lead[]>(getLeads());
-  const [filteredLeads, setFilteredLeads] = useState<Lead[]>(getLeads());
-  const [daysFilter, setDaysFilter] = useState<number | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [isPanelOpen, setIsPanelOpen] = useState(false);
+  const [filterStatus, setFilterStatus] = useState<'all' | 'stale' | 'fresh'>('all');
+  const [filterSource, setFilterSource] = useState<string>('all');
+  const [showFilters, setShowFilters] = useState(false);
 
-  const handleUpdateDaysFilter = (days: number | null) => {
-    setDaysFilter(days);
-    
-    if (days === null) {
-      setFilteredLeads(leads);
-      toast({
-        title: "Filter cleared",
-        description: "Showing all leads",
-      });
-    } else {
-      const filtered = filterLeadsByLastUpdate(leads, days);
-      setFilteredLeads(filtered);
-      
-      toast({
-        title: `Filter applied: Last update > ${days} days`,
-        description: `Found ${filtered.length} leads with no updates in more than ${days} days`,
-      });
-    }
-  };
+  const leads = getLeads();
+
+  const filteredLeads = useMemo(() => {
+    return leads.filter(lead => {
+      const matchesSearch = 
+        lead.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        lead.phoneNumber.includes(searchTerm) ||
+        lead.sku.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        lead.source.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        lead.intention.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        lead.vehicleDescription.toLowerCase().includes(searchTerm.toLowerCase());
+
+      const matchesStatus = filterStatus === 'all' || 
+        (filterStatus === 'stale' && lead.isStale) ||
+        (filterStatus === 'fresh' && !lead.isStale);
+
+      const matchesSource = filterSource === 'all' || lead.source === filterSource;
+
+      return matchesSearch && matchesStatus && matchesSource;
+    });
+  }, [leads, searchTerm, filterStatus, filterSource]);
 
   const handleLeadClick = (lead: Lead) => {
     setSelectedLead(lead);
     setIsPanelOpen(true);
   };
 
-  const handleAddEventWithToast = (eventData: Omit<Event, 'id'>) => {
-    onAddEvent(eventData);
-    
-    toast({
-      title: "Event created",
-      description: `${eventData.title} has been scheduled`,
-    });
-  };
-
-  const handleUpdateEventWithToast = (eventId: string, updates: Partial<Event>) => {
-    onUpdateEvent(eventId, updates);
-    
-    toast({
-      title: "Event updated",
-      description: "Event has been successfully updated",
-    });
-  };
-
-  const handleDeleteEventWithToast = (eventId: string) => {
-    onDeleteEvent(eventId);
-    
-    toast({
-      title: "Event deleted",
-      description: "Event has been removed from calendar",
-    });
+  const handleCloseLead = () => {
+    setSelectedLead(null);
+    setIsPanelOpen(false);
   };
 
   return (
     <div className="flex min-h-screen bg-white">
       <Sidebar />
       
-      <div className="flex-1 overflow-auto">
-        <div className="container mx-auto py-6 px-4">
-          <LeadFilter onUpdateDaysFilter={handleUpdateDaysFilter} />
-          
-          <div className="bg-white rounded-lg shadow">
-            <LeadTable leads={filteredLeads} onLeadClick={handleLeadClick} />
+      <div className="flex-1 p-6">
+        <div className="mb-6">
+          <div className="flex justify-between items-center mb-4">
+            <h1 className="text-2xl font-bold">CRM Dashboard</h1>
+            <div className="flex items-center gap-3">
+              <ScheduleDialog 
+                events={events}
+                onAddEvent={onAddEvent}
+                onUpdateEvent={onUpdateEvent}
+                onDeleteEvent={onDeleteEvent}
+              />
+              <Button className="bg-blue-600 hover:bg-blue-700">
+                <Plus className="w-4 h-4 mr-2" />
+                Add Lead
+              </Button>
+            </div>
           </div>
           
-          {daysFilter !== null && filteredLeads.length === 0 && (
-            <div className="mt-4 p-4 text-center text-gray-600">
-              No leads found that haven't been updated in more than {daysFilter} days.
+          <div className="flex gap-4 items-center">
+            <div className="relative flex-1 max-w-md">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+              <Input 
+                placeholder="Search leads..." 
+                className="pl-10"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
+            <Button 
+              variant="outline" 
+              onClick={() => setShowFilters(!showFilters)}
+              className="flex items-center gap-2"
+            >
+              <Filter className="w-4 h-4" />
+              Filters
+            </Button>
+          </div>
+
+          {showFilters && (
+            <div className="mt-4">
+              <LeadFilter 
+                filterStatus={filterStatus}
+                setFilterStatus={setFilterStatus}
+                filterSource={filterSource}
+                setFilterSource={setFilterSource}
+                leads={leads}
+              />
             </div>
           )}
-          
-          <div className="mt-4 text-sm text-gray-500">
-            <p>
-              <span className="inline-block w-3 h-3 bg-crm-stale mr-2"></span>
-              Highlighted rows indicate stale leads (not updated in more than 3 days)
-            </p>
-          </div>
         </div>
-      </div>
 
-      <LeadDetailPanel
-        lead={selectedLead}
-        isOpen={isPanelOpen}
-        onClose={() => setIsPanelOpen(false)}
-        events={events}
-        onAddEvent={handleAddEventWithToast}
-        onUpdateEvent={handleUpdateEventWithToast}
-        onDeleteEvent={handleDeleteEventWithToast}
-      />
+        <LeadTable 
+          leads={filteredLeads} 
+          onLeadClick={handleLeadClick}
+        />
+
+        <LeadDetailPanel
+          lead={selectedLead}
+          isOpen={isPanelOpen}
+          onClose={handleCloseLead}
+          events={events}
+          onAddEvent={onAddEvent}
+          onUpdateEvent={onUpdateEvent}
+          onDeleteEvent={onDeleteEvent}
+        />
+      </div>
     </div>
   );
 };
