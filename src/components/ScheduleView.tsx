@@ -101,17 +101,17 @@ const ScheduleView: React.FC<ScheduleViewProps> = ({ events, onAddEvent, onUpdat
               const date = new Date(dateKey);
               
               return (
-                <div key={dateKey} className="p-4">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="text-sm font-medium text-gray-900 min-w-24">
+                <div key={dateKey} className="p-6">
+                  <div className="flex items-center gap-4 mb-6">
+                    <div className="text-lg font-semibold text-gray-900 min-w-32">
                       {getDateLabel(date)}
                     </div>
-                    <div className="text-xs text-gray-500">
+                    <div className="text-base text-gray-600">
                       {format(date, 'MMM d, yyyy')}
                     </div>
                   </div>
                   
-                  <div className="space-y-2 ml-6">
+                  <div className="space-y-3 ml-8">
                     {dayEvents.map((event) => (
                       <div
                         key={event.id}

@@ -32,7 +32,7 @@ const Sidebar: React.FC = () => {
           />
           <SidebarItem 
             icon={<Calendar size={20} />} 
-            text="Calendar" 
+            text="Schedule" 
             active={location.pathname === '/calendar'}
             onClick={() => navigate('/calendar')}
           />
