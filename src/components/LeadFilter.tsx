@@ -34,7 +34,8 @@ const LeadFilter: React.FC<LeadFilterProps> = ({
   const [stageFilter, setStageFilter] = useState<string>('all');
   const [intentionFilter, setIntentionFilter] = useState<string>('all');
   const [picFilter, setPicFilter] = useState<string>('all');
-  const [lastInteractionFilter, setLastInteractionFilter] = useState<string>('all');
+  const [lastInteractionDays, setLastInteractionDays] = useState<string>('');
+  const [showHotLeads, setShowHotLeads] = useState<boolean>(false);
 
   const handleDaysFilterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setDaysFilter(e.target.value);
@@ -42,6 +43,14 @@ const LeadFilter: React.FC<LeadFilterProps> = ({
 
   const handleDaysFilterSubmit = () => {
     console.log('Days filter:', daysFilter);
+  };
+
+  const handleLastInteractionDaysChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setLastInteractionDays(e.target.value);
+  };
+
+  const handleLastInteractionSubmit = () => {
+    console.log('Last interaction days:', lastInteractionDays);
   };
 
   const handleTagToggle = (tag: string) => {
@@ -65,27 +74,6 @@ const LeadFilter: React.FC<LeadFilterProps> = ({
     <div className="space-y-4">
       {/* Primary Filters Row */}
       <div className="flex flex-wrap items-center gap-2">
-        <Button 
-          variant={filterStatus === 'all' ? 'default' : 'outline'}
-          onClick={() => setFilterStatus('all')}
-        >
-          All
-        </Button>
-        
-        <Button 
-          variant={filterStatus === 'stale' ? 'default' : 'outline'}
-          onClick={() => setFilterStatus('stale')}
-        >
-          Stale
-        </Button>
-        
-        <Button 
-          variant={filterStatus === 'fresh' ? 'default' : 'outline'}
-          onClick={() => setFilterStatus('fresh')}
-        >
-          Fresh
-        </Button>
-
         {/* Date Filter */}
         <Popover>
           <PopoverTrigger asChild>
@@ -285,39 +273,34 @@ const LeadFilter: React.FC<LeadFilterProps> = ({
           <PopoverTrigger asChild>
             <Button variant="outline" className="flex items-center gap-2">
               <Clock className="h-4 w-4" />
-              <span>Last Interaction: {lastInteractionFilter === 'all' ? 'All' : lastInteractionFilter}</span>
+              <span>Last Interaction: {lastInteractionDays ? `${lastInteractionDays} days ago` : 'All'}</span>
             </Button>
           </PopoverTrigger>
           <PopoverContent>
-            <div className="grid gap-2">
-              <Button 
-                variant={lastInteractionFilter === 'all' ? 'default' : 'outline'}
-                onClick={() => setLastInteractionFilter('all')}
-                className="justify-start"
-              >
-                All
-              </Button>
-              <Button 
-                variant={lastInteractionFilter === 'today' ? 'default' : 'outline'}
-                onClick={() => setLastInteractionFilter('today')}
-                className="justify-start"
-              >
-                Today
-              </Button>
-              <Button 
-                variant={lastInteractionFilter === 'this_week' ? 'default' : 'outline'}
-                onClick={() => setLastInteractionFilter('this_week')}
-                className="justify-start"
-              >
-                This Week
-              </Button>
-              <Button 
-                variant={lastInteractionFilter === 'this_month' ? 'default' : 'outline'}
-                onClick={() => setLastInteractionFilter('this_month')}
-                className="justify-start"
-              >
-                This Month
-              </Button>
+            <div className="grid gap-4">
+              <div className="space-y-2">
+                <h4 className="font-medium leading-none">Filter by last interaction</h4>
+                <p className="text-sm text-muted-foreground">
+                  Show leads with last interaction more than X days ago
+                </p>
+              </div>
+              <div className="grid gap-2">
+                <div className="grid grid-cols-3 items-center gap-4">
+                  <Label htmlFor="interaction-days">Days:</Label>
+                  <Input
+                    id="interaction-days"
+                    type="number"
+                    className="col-span-2"
+                    placeholder="e.g., 7"
+                    value={lastInteractionDays}
+                    onChange={handleLastInteractionDaysChange}
+                    min="0"
+                  />
+                </div>
+                <Button onClick={handleLastInteractionSubmit}>
+                  Apply Filter
+                </Button>
+              </div>
             </div>
           </PopoverContent>
         </Popover>
@@ -389,6 +372,18 @@ const LeadFilter: React.FC<LeadFilterProps> = ({
             </div>
           </PopoverContent>
         </Popover>
+      </div>
+
+      {/* Filter Options Row */}
+      <div className="flex flex-wrap items-center gap-2">
+        {/* Hot Leads Filter */}
+        <Button 
+          variant={showHotLeads ? 'default' : 'outline'}
+          onClick={() => setShowHotLeads(!showHotLeads)}
+          className="flex items-center gap-2"
+        >
+          🔥 Hot Leads
+        </Button>
       </div>
 
       {/* Tag Filter Section */}
