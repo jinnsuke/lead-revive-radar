@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Calendar, Filter, User, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -39,7 +38,6 @@ const LeadFilter: React.FC<LeadFilterProps> = ({
   const [intentionFilter, setIntentionFilter] = useState<string>('all');
   const [picFilter, setPicFilter] = useState<string>('all');
   const [lastInteractionDays, setLastInteractionDays] = useState<string>('');
-  const [showHotLeads, setShowHotLeads] = useState<boolean>(false);
 
   const handleDaysFilterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setDaysFilter(e.target.value);
